@@ -40,7 +40,7 @@ enum APIDate {
 
 // MARK: - Auth
 
-struct AuthRequest: Encodable {
+struct AuthRequest: Codable {
     let email: String
     let password: String
 }

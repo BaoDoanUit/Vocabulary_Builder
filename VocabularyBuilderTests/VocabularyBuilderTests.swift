@@ -117,4 +117,56 @@ final class VocabularyBuilderTests: XCTestCase {
         // verifies the initial value is nil or restored transparently.
         _ = s.isAuthenticated
     }
+
+    // MARK: - APIClient request construction
+    //
+    // Regression tests for NSURLErrorDomain Code=-1103 ("resource
+    // exceeds maximum size"), which CFNetwork returns when a GET
+    // carries a body. See API.md §7 and the device log captured via
+    // `idevicesyslog`.
+
+    @MainActor
+    func testGetRequestHasNoBody() throws {
+        let client = APIClient(baseURL: URL(string: "http://example.test:2001")!)
+        let request = try client.makeRequest(method: "GET", path: "/api/words")
+        XCTAssertNil(request.httpBody, "A GET must not carry a body")
+        XCTAssertNil(request.httpBodyStream, "A GET must not carry a body stream")
+        XCTAssertEqual(request.httpMethod, "GET")
+    }
+
+    @MainActor
+    func testDeleteRequestHasNoBody() throws {
+        let client = APIClient(baseURL: URL(string: "http://example.test:2001")!)
+        let request = try client.makeRequest(method: "DELETE", path: "/api/account/data")
+        XCTAssertNil(request.httpBody, "A DELETE must not carry a body")
+        XCTAssertNil(request.httpBodyStream)
+    }
+
+    @MainActor
+    func testPostRequestCarriesEncodedBody() throws {
+        let client = APIClient(baseURL: URL(string: "http://example.test:2001")!)
+        let request = try client.makeRequest(
+            method: "POST",
+            path: "/api/auth/sign-up",
+            body: AuthRequest(email: "a@b.test", password: "Password123!")
+        )
+        let body = try XCTUnwrap(request.httpBody)
+        let decoded = try JSONDecoder().decode(AuthRequest.self, from: body)
+        XCTAssertEqual(decoded.email, "a@b.test")
+        XCTAssertEqual(request.httpMethod, "POST")
+    }
+
+    @MainActor
+    func testRequestURLUsesTheConfiguredBaseURL() throws {
+        let client = APIClient(baseURL: URL(string: "http://example.test:2001")!)
+        let request = try client.makeRequest(method: "GET", path: "/api/words")
+        XCTAssertEqual(request.url?.absoluteString, "http://example.test:2001/api/words")
+    }
+
+    @MainActor
+    func testMediaURLIsBuiltFromTheBaseURL() {
+        let client = APIClient(baseURL: URL(string: "http://example.test:2001")!)
+        let url = client.mediaURL(.images, "abc-123")
+        XCTAssertEqual(url.absoluteString, "http://example.test:2001/api/media/images/abc-123")
+    }
 }

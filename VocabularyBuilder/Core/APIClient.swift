@@ -59,17 +59,40 @@ final class APIClient: ObservableObject {
 
     // MARK: - Core send
 
+    /// Build the URLRequest for a call. Split out so the body/no-body
+    /// distinction is unit-testable without hitting the network.
+    ///
+    /// A GET must never carry a body: CFNetwork rejects it with
+    /// `NSURLErrorDomain Code=-1103` ("resource exceeds maximum size"),
+    /// which is a confusing way to say "you sent a body with a GET".
+    internal func makeRequest<Body: Encodable>(
+        method: String,
+        path: String,
+        body: Body? = nil
+    ) throws -> URLRequest {
+        var request = URLRequest(url: url(path))
+        request.httpMethod = method
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        if let body {
+            request.httpBody = try encoder.encode(body)
+        } else {
+            // Explicitly clear both: a stale body must never ride along.
+            request.httpBody = nil
+            request.httpBodyStream = nil
+        }
+        return request
+    }
+
     /// Send a request and decode the response. Handles every wire-format
     /// quirk documented in API.md §3 + §17 in one place.
+    ///
+    /// `body` is `nil` for GET/DELETE.
     private func send<Body: Encodable, T: Decodable>(
         _ method: String,
         _ path: String,
         body: Body? = nil
     ) async throws -> T {
-        var request = URLRequest(url: url(path))
-        request.httpMethod = method
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        if let body { request.httpBody = try encoder.encode(body) }
+        let request = try makeRequest(method: method, path: path, body: body)
 
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse else {
@@ -88,11 +111,11 @@ final class APIClient: ObservableObject {
         }
     }
 
-    /// Overload for endpoints with no request body. Uses a typed
-    /// `NoBody` placeholder so we don't need `Optional<Never>` (which
-    /// became Encodable only in iOS 17).
+    /// Overload for endpoints with no request body. `NoBody` encodes to an
+    /// empty JSON object, so it is never sent — `body: nil` is passed
+    /// instead. (`Optional<Never>` is not `Encodable` before iOS 17.)
     private func send<T: Decodable>(_ method: String, _ path: String) async throws -> T {
-        try await send(method, path, body: NoBody())
+        try await send(method, path, body: nil as NoBody?)
     }
 
     // MARK: - Auth
