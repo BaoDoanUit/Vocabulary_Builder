@@ -12,12 +12,12 @@
 		1A0003000000000000000003 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A0002000000000000000003 /* Assets.xcassets */; };
 		1A0003000000000000000004 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A0002000000000000000004 /* Preview Assets.xcassets */; };
 		1A0003000000000000000005 /* VocabularyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0002000000000000000005 /* VocabularyTests.swift */; };
-		1A0003000000000000000006 /* Word.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0002000000000000000006 /* Word.swift */; };
-		1A0003000000000000000007 /* WordStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0002000000000000000007 /* WordStore.swift */; };
-		1A0003000000000000000008 /* WordListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0002000000000000000008 /* WordListView.swift */; };
-		1A0003000000000000000009 /* FlashcardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0002000000000000000009 /* FlashcardView.swift */; };
-		1A00030000000000000000010 /* QuizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A00020000000000000000010 /* QuizView.swift */; };
-		1A00030000000000000000011 /* words.json in Resources */ = {isa = PBXBuildFile; fileRef = 1A00020000000000000000011 /* words.json */; };
+		1A000300000000000000000A /* Word.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000200000000000000000A /* Word.swift */; };
+		1A000300000000000000000B /* WordStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000200000000000000000B /* WordStore.swift */; };
+		1A000300000000000000000C /* WordListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000200000000000000000C /* WordListView.swift */; };
+		1A000300000000000000000D /* FlashcardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000200000000000000000D /* FlashcardView.swift */; };
+		1A000300000000000000000E /* QuizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000200000000000000000E /* QuizView.swift */; };
+		1A000300000000000000000F /* words.json in Resources */ = {isa = PBXBuildFile; fileRef = 1A000200000000000000000F /* words.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,12 +38,12 @@
 		1A0002000000000000000003 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1A0002000000000000000004 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		1A0002000000000000000005 /* VocabularyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyTests.swift; sourceTree = "<group>"; };
-		1A0002000000000000000006 /* Word.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Word.swift; sourceTree = "<group>"; };
-		1A0002000000000000000007 /* WordStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordStore.swift; sourceTree = "<group>"; };
-		1A0002000000000000000008 /* WordListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordListView.swift; sourceTree = "<group>"; };
-		1A0002000000000000000009 /* FlashcardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlashcardView.swift; sourceTree = "<group>"; };
-		1A00020000000000000000010 /* QuizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizView.swift; sourceTree = "<group>"; };
-		1A00020000000000000000011 /* words.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = words.json; sourceTree = "<group>"; };
+		1A000200000000000000000A /* Word.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Word.swift; sourceTree = "<group>"; };
+		1A000200000000000000000B /* WordStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordStore.swift; sourceTree = "<group>"; };
+		1A000200000000000000000C /* WordListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordListView.swift; sourceTree = "<group>"; };
+		1A000200000000000000000D /* FlashcardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlashcardView.swift; sourceTree = "<group>"; };
+		1A000200000000000000000E /* QuizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizView.swift; sourceTree = "<group>"; };
+		1A000200000000000000000F /* words.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = words.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -89,13 +89,13 @@
 				1A0002000000000000000002 /* ContentView.swift */,
 				1A0002000000000000000003 /* Assets.xcassets */,
 				1A0001000000000000000006 /* Preview Content */,
-			
-				1A0002000000000000000006 /* Word.swift */,
-				1A0002000000000000000007 /* WordStore.swift */,
-				1A0002000000000000000008 /* WordListView.swift */,
-				1A0002000000000000000009 /* FlashcardView.swift */,
-				1A00020000000000000000010 /* QuizView.swift */,
-				1A00020000000000000000011 /* words.json */,);
+				1A000200000000000000000A /* Word.swift */,
+				1A000200000000000000000B /* WordStore.swift */,
+				1A000200000000000000000C /* WordListView.swift */,
+				1A000200000000000000000D /* FlashcardView.swift */,
+				1A000200000000000000000E /* QuizView.swift */,
+				1A000200000000000000000F /* words.json */,
+			);
 			path = Vocabulary;
 			sourceTree = "<group>";
 		};
@@ -198,8 +198,8 @@
 			files = (
 				1A0003000000000000000004 /* Preview Assets.xcassets in Resources */,
 				1A0003000000000000000003 /* Assets.xcassets in Resources */,
-			
-				1A00030000000000000000011 /* words.json in Resources */,);
+				1A000300000000000000000F /* words.json in Resources */,
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		1A0001000000000000000010 /* Resources */ = {
@@ -218,11 +218,11 @@
 			files = (
 				1A0003000000000000000002 /* ContentView.swift in Sources */,
 				1A0003000000000000000001 /* VocabularyApp.swift in Sources */,
-				1A0003000000000000000006 /* Word.swift in Sources */,
-				1A0003000000000000000007 /* WordStore.swift in Sources */,
-				1A0003000000000000000008 /* WordListView.swift in Sources */,
-				1A0003000000000000000009 /* FlashcardView.swift in Sources */,
-				1A00030000000000000000010 /* QuizView.swift in Sources */,,
+				1A000300000000000000000A /* Word.swift in Sources */,
+				1A000300000000000000000B /* WordStore.swift in Sources */,
+				1A000300000000000000000C /* WordListView.swift in Sources */,
+				1A000300000000000000000D /* FlashcardView.swift in Sources */,
+				1A000300000000000000000E /* QuizView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
