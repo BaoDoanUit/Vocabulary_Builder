@@ -1,0 +1,132 @@
+name: iOS
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      bundle_id:
+        description: "Bundle ID for the device build (must match your provisioning profile)"
+        required: false
+        default: "dev.baodoan.vocabulary"
+
+jobs:
+  test:
+    name: Build and Test on iOS Simulator
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set Default Scheme
+        run: |
+          scheme_list=$(xcodebuild -list -json | tr -d "\n")
+          default=$(echo $scheme_list | ruby -e "require 'json'; puts JSON.parse(STDIN.gets)['project']['targets'][0]")
+          echo $default | cat >default
+          echo Using default scheme: $default
+
+      - name: Build (simulator)
+        env:
+          scheme: ${{ 'default' }}
+          platform: ${{ 'iOS Simulator' }}
+        run: |
+          device=$(xcrun simctl list devices available -j | ruby -rjson -e '
+            data = JSON.parse($stdin.read)
+            runtimes = data["devices"].keys
+              .select { |k| k =~ /^com\.apple\.CoreSimulator\.SimRuntime\.iOS-/ }
+              .sort_by { |k| k.scan(/iOS-(\d+)-(\d+)/).flatten.map(&:to_i) }
+              .reverse
+            runtimes.each do |rt|
+              iphone = (data["devices"][rt] || []).find { |d| d["name"].start_with?("iPhone") && d["isAvailable"] }
+              if iphone
+                puts iphone["name"]
+                exit
+              end
+            end
+            puts "iPhone 17"
+          ')
+          echo "Using simulator: $device"
+          if [ $scheme = default ]; then scheme=$(cat default); fi
+          if [ "`ls -A | grep -i \\.xcworkspace\$`" ]; then filetype_parameter="workspace" && file_to_build="`ls -A | grep -i \\.xcworkspace\$`"; else filetype_parameter="project" && file_to_build="`ls -A | grep -i \\.xcodeproj\$`"; fi
+          file_to_build=`echo $file_to_build | awk '{$1=$1;print}'`
+          xcodebuild build-for-testing -scheme "$scheme" -"$filetype_parameter" "$file_to_build" -destination "platform=$platform,name=$device"
+
+      - name: Test
+        env:
+          scheme: ${{ 'default' }}
+          platform: ${{ 'iOS Simulator' }}
+        run: |
+          device=$(xcrun simctl list devices available -j | ruby -rjson -e '
+            data = JSON.parse($stdin.read)
+            runtimes = data["devices"].keys
+              .select { |k| k =~ /^com\.apple\.CoreSimulator\.SimRuntime\.iOS-/ }
+              .sort_by { |k| k.scan(/iOS-(\d+)-(\d+)/).flatten.map(&:to_i) }
+              .reverse
+            runtimes.each do |rt|
+              iphone = (data["devices"][rt] || []).find { |d| d["name"].start_with?("iPhone") && d["isAvailable"] }
+              if iphone
+                puts iphone["name"]
+                exit
+              end
+            end
+            puts "iPhone 17"
+          ')
+          echo "Using simulator: $device"
+          if [ $scheme = default ]; then scheme=$(cat default); fi
+          if [ "`ls -A | grep -i \\.xcworkspace\$`" ]; then filetype_parameter="workspace" && file_to_build="`ls -A | grep -i \\.xcodeproj\$`"; else filetype_parameter="project" && file_to_build="`ls -A | grep -i \\.xcodeproj\$`"; fi
+          file_to_build=`echo $file_to_build | awk '{$1=$1;print}'`
+          xcodebuild test-without-building -scheme "$scheme" -"$filetype_parameter" "$file_to_build" -destination "platform=$platform,name=$device"
+
+  publish-sidestore:
+    name: Publish unsigned IPA for SideStore
+    runs-on: macos-latest
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build unsigned device app
+        run: |
+          scheme=$(cat default)
+          xcodebuild \
+            -project Vocabulary.xcodeproj \
+            -scheme "$scheme" \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_IDENTITY="" \
+            CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER" \
+            build
+
+      - name: Package IPA
+        run: |
+          APP_PATH="$RUNNER_TEMP/DerivedData/Build/Products/Release-iphoneos/Vocabulary.app"
+          PACKAGE_PATH="$RUNNER_TEMP/ipa-package"
+          test -d "$APP_PATH" || { echo "::error::Expected app not found at $APP_PATH"; exit 1; }
+          mkdir -p "$PACKAGE_PATH/Payload"
+          ditto "$APP_PATH" "$PACKAGE_PATH/Payload/Vocabulary.app"
+          (cd "$PACKAGE_PATH" && zip -qr "$RUNNER_TEMP/Vocabulary.ipa" Payload)
+          test -s "$RUNNER_TEMP/Vocabulary.ipa"
+
+      - name: Publish latest GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="vocabulary-${GITHUB_RUN_NUMBER}-${GITHUB_RUN_ATTEMPT}"
+          gh release create "$TAG" "$RUNNER_TEMP/Vocabulary.ipa" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Vocabulary build ${GITHUB_RUN_NUMBER}" \
+            --notes "Unsigned iOS IPA for SideStore. Open the install link from an iPhone with SideStore installed." \
+            --latest
+          echo "### SideStore install/update" >> "$GITHUB_STEP_SUMMARY"
+          echo "Open this link on your iPhone to install or update the latest build:" >> "$GITHUB_STEP_SUMMARY"
+          echo 'sidestore://install?url=https%3A%2F%2Fgithub.com%2FBaoDoanUit%2Fvocabulary_app%2Freleases%2Flatest%2Fdownload%2FVocabulary.ipa' >> "$GITHUB_STEP_SUMMARY"
