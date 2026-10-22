@@ -83,6 +83,12 @@ final class APIClient: ObservableObject {
         return request
     }
 
+    /// Bodyless variant of `makeRequest`. Exists so a call site does not
+    /// have to spell out a generic type just to omit the body.
+    internal func makeRequest(method: String, path: String) throws -> URLRequest {
+        try makeRequest(method: method, path: path, body: nil as NoBody?)
+    }
+
     /// Send a request and decode the response. Handles every wire-format
     /// quirk documented in API.md §3 + §17 in one place.
     ///
