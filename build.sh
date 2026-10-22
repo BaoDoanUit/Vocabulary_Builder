@@ -59,6 +59,12 @@ ACT_TOOL="/home/baodoan/.swiftpm/swift-sdks/darwin.artifactbundle/Developer/Plat
 IOS_SDK="/home/baodoan/.swiftpm/swift-sdks/darwin.artifactbundle/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk"
 ASSET_CATALOG="$SCRIPT_DIR/$PRODUCT/Assets.xcassets"
 
+# Display name as it appears on the home screen. The Xcode product name
+# `VocabularyBuilder` lowercases to `vocabularybuilder`; we want the
+# underscore form `vocabulary_builder`. Keep this in sync with
+# `CFBundleDisplayName` in the source Info.plist.
+DISPLAY_NAME="${DISPLAY_NAME:-vocabulary_builder}"
+
 # --- defaults ----------------------------------------------------------------
 
 CONFIGURATION="debug"
@@ -123,6 +129,7 @@ command -v swift >/dev/null 2>&1 || fail "swift not on PATH after sourcing ios-e
 mkdir -p "$RELEASES_DIR" "$LOG_DIR"
 
 log "Product         : $PRODUCT"
+log "Display name    : $DISPLAY_NAME"
 log "Configuration   : $CONFIGURATION"
 log "Triple          : $TRIPLE"
 log "Output IPA      : $MAKE_IPA"
@@ -194,10 +201,12 @@ partial    = plistlib.load(open("$PLIST_APPEND", "rb"))
 for k, v in partial.items():
     if k.startswith("CFBundleIcons"):
         app_plist[k] = v
-# Force lowercase display name as defined in the project (INFOPLIST_KEY_CFBundleDisplayName)
-app_plist["CFBundleDisplayName"] = "${PRODUCT,,}"
+# Use the configured DISPLAY_NAME (default: vocabulary_builder) so the
+# home-screen label keeps the underscore even when the product name
+# would otherwise lowercase to "vocabularybuilder".
+app_plist["CFBundleDisplayName"] = "$DISPLAY_NAME"
 plistlib.dump(app_plist, open("$APP_DIR/Info.plist", "wb"), sort_keys=False)
-print("[build] Merged", len(partial), "actool keys + lowercase display name into Info.plist")
+print("[build] Merged", len(partial), "actool keys + display name $DISPLAY_NAME into Info.plist")
 PY
   else
     log "WARN: actool produced no Assets.car; icon not applied"

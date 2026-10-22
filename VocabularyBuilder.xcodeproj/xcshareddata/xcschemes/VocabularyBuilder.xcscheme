@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "1A0001000000000000000007"
-               BuildableName = "Vocabulary.app"
-               BlueprintName = "Vocabulary"
-               ReferencedContainer = "container:Vocabulary.xcodeproj">
+               BuildableName = "VocabularyBuilder.app"
+               BlueprintName = "VocabularyBuilder"
+               ReferencedContainer = "container:VocabularyBuilder.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -29,9 +29,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "1A0001000000000000000008"
-               BuildableName = "VocabularyTests.xctest"
-               BlueprintName = "VocabularyTests"
-               ReferencedContainer = "container:Vocabulary.xcodeproj">
+               BuildableName = "VocabularyBuilderTests.xctest"
+               BlueprintName = "VocabularyBuilderTests"
+               ReferencedContainer = "container:VocabularyBuilder.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -47,9 +47,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "1A0001000000000000000008"
-               BuildableName = "VocabularyTests.xctest"
-               BlueprintName = "VocabularyTests"
-               ReferencedContainer = "container:Vocabulary.xcodeproj">
+               BuildableName = "VocabularyBuilderTests.xctest"
+               BlueprintName = "VocabularyBuilderTests"
+               ReferencedContainer = "container:VocabularyBuilder.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -69,9 +69,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "1A0001000000000000000007"
-            BuildableName = "Vocabulary.app"
-            BlueprintName = "Vocabulary"
-            ReferencedContainer = "container:Vocabulary.xcodeproj">
+            BuildableName = "VocabularyBuilder.app"
+            BlueprintName = "VocabularyBuilder"
+            ReferencedContainer = "container:VocabularyBuilder.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -86,9 +86,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "1A0001000000000000000007"
-            BuildableName = "Vocabulary.app"
-            BlueprintName = "Vocabulary"
-            ReferencedContainer = "container:Vocabulary.xcodeproj">
+            BuildableName = "VocabularyBuilder.app"
+            BlueprintName = "VocabularyBuilder"
+            ReferencedContainer = "container:VocabularyBuilder.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

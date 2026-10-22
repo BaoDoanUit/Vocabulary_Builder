@@ -10,7 +10,7 @@ on:
       bundle_id:
         description: "Bundle ID for the device build (must match your provisioning profile)"
         required: false
-        default: "dev.baodoan.vocabulary"
+        default: "dev.baodoan.vocabulary_builder"
 
 jobs:
   test:
@@ -96,7 +96,7 @@ jobs:
         run: |
           scheme=$(cat default)
           xcodebuild \
-            -project Vocabulary.xcodeproj \
+            -project VocabularyBuilder.xcodeproj \
             -scheme "$scheme" \
             -configuration Release \
             -sdk iphoneos \
@@ -109,24 +109,24 @@ jobs:
 
       - name: Package IPA
         run: |
-          APP_PATH="$RUNNER_TEMP/DerivedData/Build/Products/Release-iphoneos/Vocabulary.app"
+          APP_PATH="$RUNNER_TEMP/DerivedData/Build/Products/Release-iphoneos/VocabularyBuilder.app"
           PACKAGE_PATH="$RUNNER_TEMP/ipa-package"
           test -d "$APP_PATH" || { echo "::error::Expected app not found at $APP_PATH"; exit 1; }
           mkdir -p "$PACKAGE_PATH/Payload"
-          ditto "$APP_PATH" "$PACKAGE_PATH/Payload/Vocabulary.app"
-          (cd "$PACKAGE_PATH" && zip -qr "$RUNNER_TEMP/Vocabulary.ipa" Payload)
-          test -s "$RUNNER_TEMP/Vocabulary.ipa"
+          ditto "$APP_PATH" "$PACKAGE_PATH/Payload/VocabularyBuilder.app"
+          (cd "$PACKAGE_PATH" && zip -qr "$RUNNER_TEMP/VocabularyBuilder.ipa" Payload)
+          test -s "$RUNNER_TEMP/VocabularyBuilder.ipa"
 
       - name: Publish latest GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="vocabulary-${GITHUB_RUN_NUMBER}-${GITHUB_RUN_ATTEMPT}"
-          gh release create "$TAG" "$RUNNER_TEMP/Vocabulary.ipa" \
+          TAG="vocabulary_builder-${GITHUB_RUN_NUMBER}-${GITHUB_RUN_ATTEMPT}"
+          gh release create "$TAG" "$RUNNER_TEMP/VocabularyBuilder.ipa" \
             --repo "$GITHUB_REPOSITORY" \
-            --title "Vocabulary build ${GITHUB_RUN_NUMBER}" \
+            --title "VocabularyBuilder build ${GITHUB_RUN_NUMBER}" \
             --notes "Unsigned iOS IPA for SideStore. Open the install link from an iPhone with SideStore installed." \
             --latest
           echo "### SideStore install/update" >> "$GITHUB_STEP_SUMMARY"
           echo "Open this link on your iPhone to install or update the latest build:" >> "$GITHUB_STEP_SUMMARY"
-          echo 'sidestore://install?url=https%3A%2F%2Fgithub.com%2FBaoDoanUit%2Fvocabulary_app%2Freleases%2Flatest%2Fdownload%2FVocabulary.ipa' >> "$GITHUB_STEP_SUMMARY"
+          echo 'sidestore://install?url=https%3A%2F%2Fgithub.com%2FBaoDoanUit%2Fvocabulary_app%2Freleases%2Flatest%2Fdownload%2FVocabularyBuilder.ipa' >> "$GITHUB_STEP_SUMMARY"

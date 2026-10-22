@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDisplayName</key>
+	<string>vocabulary_builder</string>
+	<key>UIApplicationSceneManifest_Generation</key>
+	<string>YES</string>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<string>YES</string>
+	<key>UILaunchScreen</key>
+	<dict/>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+
+	<!-- Plain HTTP to the API host over Tailscale. The hostname key is
+	     required: an IP-based exception is silently ineffective on iOS. -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>bao-thinkcentre-m93p.tail2c53fc.ts.net</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSIncludesSubdomains</key>
+				<false/>
+			</dict>
+			<key>localhost</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
+		</dict>
+	</dict>
+
+	<!-- Permission strings for the OCR flow. -->
+	<key>NSCameraUsageDescription</key>
+	<string>Capture a photo of a page to extract vocabulary.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Choose a photo of a page to extract vocabulary.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Save a word's illustration to your photo library.</string>
+</dict>
+</plist>
