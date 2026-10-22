@@ -17,7 +17,7 @@
                BlueprintIdentifier = "1A0001000000000000000007"
                BuildableName = "Vocabulary.app"
                BlueprintName = "Vocabulary"
-               ReferencedContainer = "container:HelloWorld.xcodeproj">
+               ReferencedContainer = "container:Vocabulary.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -31,7 +31,7 @@
                BlueprintIdentifier = "1A0001000000000000000008"
                BuildableName = "VocabularyTests.xctest"
                BlueprintName = "VocabularyTests"
-               ReferencedContainer = "container:HelloWorld.xcodeproj">
+               ReferencedContainer = "container:Vocabulary.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -49,7 +49,7 @@
                BlueprintIdentifier = "1A0001000000000000000008"
                BuildableName = "VocabularyTests.xctest"
                BlueprintName = "VocabularyTests"
-               ReferencedContainer = "container:HelloWorld.xcodeproj">
+               ReferencedContainer = "container:Vocabulary.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -71,7 +71,7 @@
             BlueprintIdentifier = "1A0001000000000000000007"
             BuildableName = "Vocabulary.app"
             BlueprintName = "Vocabulary"
-            ReferencedContainer = "container:HelloWorld.xcodeproj">
+            ReferencedContainer = "container:Vocabulary.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -88,7 +88,7 @@
             BlueprintIdentifier = "1A0001000000000000000007"
             BuildableName = "Vocabulary.app"
             BlueprintName = "Vocabulary"
-            ReferencedContainer = "container:HelloWorld.xcodeproj">
+            ReferencedContainer = "container:Vocabulary.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
