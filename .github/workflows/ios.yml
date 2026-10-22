@@ -92,6 +92,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set Default Scheme
+        run: |
+          scheme_list=$(xcodebuild -list -json | tr -d "\n")
+          default=$(echo $scheme_list | ruby -e "require 'json'; puts JSON.parse(STDIN.gets)['project']['targets'][0]")
+          echo $default | cat >default
+          echo Using default scheme: $default
+
       - name: Build unsigned device app
         run: |
           scheme=$(cat default)
@@ -129,4 +136,4 @@ jobs:
             --latest
           echo "### SideStore install/update" >> "$GITHUB_STEP_SUMMARY"
           echo "Open this link on your iPhone to install or update the latest build:" >> "$GITHUB_STEP_SUMMARY"
-          echo 'sidestore://install?url=https%3A%2F%2Fgithub.com%2FBaoDoanUit%2Fvocabulary_app%2Freleases%2Flatest%2Fdownload%2FVocabularyBuilder.ipa' >> "$GITHUB_STEP_SUMMARY"
+          echo "sidestore://install?url=$(python3 -c "import urllib.parse; print(urllib.parse.quote('https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/VocabularyBuilder.ipa', safe=''))")" >> "$GITHUB_STEP_SUMMARY"
