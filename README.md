@@ -93,6 +93,28 @@ iOS SDK at `~/.swiftpm/swift-sdks/`, `actool`, `pymobiledevice3`.
 ./build.sh --release --ipa --serve   # also starts an HTTP server on :8080
 ```
 
+### Release layout
+
+Builds are grouped by the day they were made:
+
+```
+releases/
+├── latest -> 2026-10-23/VocabularyBuilder-release-ca911aa-20261023-073723.ipa
+├── VocabularyBuilder.ipa              # copy of the most recent build
+├── 2026-10-22/
+│   └── VocabularyBuilder-release-6f9e138-20261022-221729.ipa
+└── 2026-10-23/
+    └── VocabularyBuilder-release-ca911aa-20261023-073723.ipa
+```
+
+`releases/latest` is a relative symlink to the newest build, so it keeps
+working if the repo is moved. The last 10 builds are kept; older ones and
+any date folder left empty are pruned automatically.
+
+`--serve` prints three URLs: the stable `VocabularyBuilder.ipa` path, that
+build's dated path, and the root of the folder tree so you can browse
+every build by date.
+
 ## Install on the iPhone
 
 Either:

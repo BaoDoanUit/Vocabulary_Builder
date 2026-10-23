@@ -9,7 +9,8 @@
 #   2. Builds an unsigned device .app via xtool dev build.
 #   3. Runs actool to compile Assets.xcassets into Assets.car and merge CFBundleIcons
 #      + CFBundleDisplayName into the .app's Info.plist.
-#   4. Packages the .app into releases/<Product>.ipa and a versioned timestamped copy.
+#   4. Packages the .app into releases/<Product>.ipa and a versioned timestamped copy
+#      under releases/<YYYY-MM-DD>/, so builds are grouped by the day they were made.
 #
 # Usage:
 #   ./build.sh                    # debug build, no ipa
@@ -141,11 +142,14 @@ log "Swift           : $(swift --version 2>&1 | head -1)"
 
 GIT_SHA="$(git -C "$SCRIPT_DIR" rev-parse --short=7 HEAD 2>/dev/null || echo 'no-git')"
 TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
+# Builds are grouped by the day they were made: releases/2026-10-23/...
+BUILD_DATE="$(date +%Y-%m-%d)"
 APP_DIR="$BUILD_PKG_DIR/xtool/$PRODUCT.app"
 PAYLOAD_DIR="$BUILD_PKG_DIR/xtool/Payload"
 RAW_IPA="$BUILD_PKG_DIR/xtool/$PRODUCT.ipa"
 VERSIONED_NAME="${PRODUCT}-${CONFIGURATION}-${GIT_SHA}-${TIMESTAMP}.ipa"
-DEST_IPA="$RELEASES_DIR/$VERSIONED_NAME"
+DATE_DIR="$RELEASES_DIR/$BUILD_DATE"
+DEST_IPA="$DATE_DIR/$VERSIONED_NAME"
 LATEST_IPA="$RELEASES_DIR/$PRODUCT.ipa"
 LATEST_LINK="$RELEASES_DIR/latest"
 BUILD_LOG="$LOG_DIR/build-${CONFIGURATION}-${TIMESTAMP}.log"
@@ -226,15 +230,23 @@ if [[ "$MAKE_IPA" -eq 1 ]]; then
   (cd "$PAYLOAD_DIR/.." && zip -qr "$RAW_IPA" Payload)
   log "Packaged IPA: $RAW_IPA"
 
-  # Stage to ./releases/
+  # Stage to ./releases/<YYYY-MM-DD>/, and keep a copy at the top level
+  # so `releases/VocabularyBuilder.ipa` stays a stable path.
+  mkdir -p "$DATE_DIR"
   cp -v "$RAW_IPA" "$DEST_IPA"
   cp -f  "$DEST_IPA" "$LATEST_IPA"
-  ln -sfn "$VERSIONED_NAME" "$LATEST_LINK"
+  # Relative target, so the symlink keeps working if the repo moves.
+  ln -sfn "$BUILD_DATE/$VERSIONED_NAME" "$LATEST_LINK"
 
-  # Prune anything older than the last 10 builds to keep the folder tidy
-  ls -1t "$RELEASES_DIR"/${PRODUCT}-*.ipa 2>/dev/null \
-    | tail -n +11 \
-    | xargs -r rm -f
+  # Prune anything older than the last 10 builds to keep the folder tidy,
+  # then drop any date folder that is left empty. Null-delimited so paths
+  # containing spaces are handled correctly.
+  find "$RELEASES_DIR" -mindepth 2 -name "${PRODUCT}-*.ipa" -printf '%T@\t%p\0' 2>/dev/null \
+    | sort -z -rn \
+    | tail -z -n +11 \
+    | cut -z -f2- \
+    | xargs -0 -r rm -f
+  find "$RELEASES_DIR" -mindepth 1 -maxdepth 1 -type d -empty -delete 2>/dev/null || true
 fi
 
 # --- inspect -----------------------------------------------------------------
@@ -254,6 +266,7 @@ fi
 if [[ "$SERVE" -eq 1 && "$MAKE_IPA" -eq 1 ]]; then
   HOST_IP="$(hostname -I | awk '{print $1}')"
   URL="http://${HOST_IP}:${SERVE_PORT}/${PRODUCT}.ipa"
+  DATE_URL="http://${HOST_IP}:${SERVE_PORT}/${BUILD_DATE}/${VERSIONED_NAME}"
   SIDESTORE_URL="sidestore://install?url=$(python3 -c "import urllib.parse; print(urllib.parse.quote('${URL}', safe=''))")"
   log "HTTP server starting on port $SERVE_PORT, serving $RELEASES_DIR/"
   log "Install on iPhone (Safari):"
@@ -261,6 +274,10 @@ if [[ "$SERVE" -eq 1 && "$MAKE_IPA" -eq 1 ]]; then
   log "  -> Share -> Open in SideStore"
   log "Or open the SideStore URL directly:"
   log "  ${SIDESTORE_URL}"
+  log "This build's dated copy:"
+  log "  ${DATE_URL}"
+  log "Browse all builds by date:"
+  log "  http://${HOST_IP}:${SERVE_PORT}/"
   cd "$RELEASES_DIR"
   exec python3 -m http.server "$SERVE_PORT" --bind 0.0.0.0
 fi
@@ -270,8 +287,9 @@ fi
 log "Build complete."
 if [[ "$MAKE_IPA" -eq 1 ]]; then
   log "IPA        : $DEST_IPA ($(du -h "$DEST_IPA" | awk '{print $1}'))"
+  log "Folder     : $BUILD_DATE"
   log "Latest sym : $LATEST_IPA"
-  log "Versioned  : $LATEST_LINK -> $VERSIONED_NAME"
+  log "Versioned  : $LATEST_LINK -> $BUILD_DATE/$VERSIONED_NAME"
 fi
 log "Log        : $BUILD_LOG"
 log "Next       :"
