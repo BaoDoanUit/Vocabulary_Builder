@@ -93,7 +93,16 @@ struct StudyView: View {
             }
         }
         .navigationViewStyle(.stack)
-        .onAppear { if deck.isEmpty { reshuffle() } }
+        .onAppear {
+            if deck.isEmpty { reshuffle() }
+            // Pull in words imported since the last visit. Skipped when
+            // the store was updated moments ago.
+            Task {
+                if library.words.isEmpty || !library.wordsAreFresh {
+                    await library.reloadWords(api: api)
+                }
+            }
+        }
         .onChange(of: filter) { _ in reshuffle() }
         .onChange(of: library.words) { _ in reshuffle() }
         .onDisappear { speech.stop() }

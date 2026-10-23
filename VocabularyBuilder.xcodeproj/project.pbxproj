@@ -12,11 +12,14 @@
 		1A0003000000000000000003 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A0002000000000000000003 /* Assets.xcassets */; };
 		1A0003000000000000000004 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A0002000000000000000004 /* Preview Assets.xcassets */; };
 		1A0003000000000000000005 /* VocabularyBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0002000000000000000005 /* VocabularyBuilderTests.swift */; };
+		1A000300000000000000002B /* StubAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000200000000000000002B /* StubAPIClient.swift */; };
+		1A000300000000000000002C /* LibraryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000200000000000000002C /* LibraryStoreTests.swift */; };
 		1A0003000000000000000006 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0002000000000000000006 /* RootView.swift */; };
 		1A0003000000000000000010 /* Core/AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0002000000000000000010 /* Core/AppSettings.swift */; };
 		1A0003000000000000000011 /* Core/APIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0002000000000000000011 /* Core/APIError.swift */; };
 		1A0003000000000000000012 /* Core/APIModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0002000000000000000012 /* Core/APIModels.swift */; };
 		1A0003000000000000000013 /* Core/APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0002000000000000000013 /* Core/APIClient.swift */; };
+		1A000300000000000000002A /* Core/APIClientProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000200000000000000002A /* Core/APIClientProtocol.swift */; };
 		1A0003000000000000000014 /* Core/Speech.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0002000000000000000014 /* Core/Speech.swift */; };
 		1A0003000000000000000015 /* Core/ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0002000000000000000015 /* Core/ImageCache.swift */; };
 		1A0003000000000000000016 /* Core/ImageProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0002000000000000000016 /* Core/ImageProcessor.swift */; };
@@ -58,11 +61,14 @@
 		1A0002000000000000000003 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1A0002000000000000000004 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		1A0002000000000000000005 /* VocabularyBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyBuilderTests.swift; sourceTree = "<group>"; };
+		1A000200000000000000002B /* StubAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubAPIClient.swift; sourceTree = "<group>"; };
+		1A000200000000000000002C /* LibraryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryStoreTests.swift; sourceTree = "<group>"; };
 		1A0002000000000000000006 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		1A0002000000000000000010 /* Core/AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		1A0002000000000000000011 /* Core/APIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIError.swift; sourceTree = "<group>"; };
 		1A0002000000000000000012 /* Core/APIModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIModels.swift; sourceTree = "<group>"; };
 		1A0002000000000000000013 /* Core/APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		1A000200000000000000002A /* Core/APIClientProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClientProtocol.swift; sourceTree = "<group>"; };
 		1A0002000000000000000014 /* Core/Speech.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Speech.swift; sourceTree = "<group>"; };
 		1A0002000000000000000015 /* Core/ImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
 		1A0002000000000000000016 /* Core/ImageProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageProcessor.swift; sourceTree = "<group>"; };
@@ -147,6 +153,7 @@
 				1A0002000000000000000011 /* Core/APIError.swift */,
 				1A0002000000000000000012 /* Core/APIModels.swift */,
 				1A0002000000000000000013 /* Core/APIClient.swift */,
+				1A000200000000000000002A /* Core/APIClientProtocol.swift */,
 				1A0002000000000000000014 /* Core/Speech.swift */,
 				1A0002000000000000000015 /* Core/ImageCache.swift */,
 				1A0002000000000000000016 /* Core/ImageProcessor.swift */,
@@ -261,6 +268,8 @@
 			isa = PBXGroup;
 			children = (
 				1A0002000000000000000005 /* VocabularyBuilderTests.swift */,
+				1A000200000000000000002B /* StubAPIClient.swift */,
+				1A000200000000000000002C /* LibraryStoreTests.swift */,
 			);
 			path = VocabularyBuilderTests;
 			sourceTree = "<group>";
@@ -380,6 +389,7 @@
 				1A0003000000000000000011 /* Core/APIError.swift in Sources */,
 				1A0003000000000000000012 /* Core/APIModels.swift in Sources */,
 				1A0003000000000000000013 /* Core/APIClient.swift in Sources */,
+				1A000300000000000000002A /* Core/APIClientProtocol.swift in Sources */,
 				1A0003000000000000000014 /* Core/Speech.swift in Sources */,
 				1A0003000000000000000015 /* Core/ImageCache.swift in Sources */,
 				1A0003000000000000000016 /* Core/ImageProcessor.swift in Sources */,
@@ -409,6 +419,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				1A0003000000000000000005 /* VocabularyBuilderTests.swift in Sources */,
+				1A000300000000000000002B /* StubAPIClient.swift in Sources */,
+				1A000300000000000000002C /* LibraryStoreTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

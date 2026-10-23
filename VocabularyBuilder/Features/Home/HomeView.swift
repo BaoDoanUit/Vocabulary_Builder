@@ -89,7 +89,11 @@ struct HomeView: View {
             }
             .task {
                 await vm.loadSettings()
-                if library.words.isEmpty { await library.reload(api: api) }
+                // Refresh on appear, but skip the ~427 KB fetch when the
+                // store was updated moments ago.
+                if library.words.isEmpty || !library.wordsAreFresh {
+                    await library.reloadWords(api: api)
+                }
             }
             .refreshable {
                 await library.reload(api: api)
@@ -97,7 +101,15 @@ struct HomeView: View {
             }
             .fullScreenCover(isPresented: $showOcr) {
                 OcrFlowView {
-                    Task { await library.reload(api: api) }
+                    // The OCR flow already refreshed the store, so the
+                    // list is current. Only refetch if the refresh was
+                    // skipped (e.g. the flow was dismissed without
+                    // importing anything).
+                    Task {
+                        if !library.wordsAreFresh {
+                            await library.reloadWords(api: api)
+                        }
+                    }
                 }
             }
         }

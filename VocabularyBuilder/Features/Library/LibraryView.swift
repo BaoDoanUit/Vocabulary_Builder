@@ -56,6 +56,13 @@ struct LibraryView: View {
         .refreshable {
             await library.reload(api: api)
         }
+        .task {
+            // The list is a snapshot unless it is refreshed when the tab
+            // is opened. Skip the fetch when the store was updated
+            // moments ago — `GET /api/words` is ~427 KB.
+            guard !library.wordsAreFresh else { return }
+            await library.reloadWords(api: api)
+        }
     }
 
     @ToolbarContentBuilder

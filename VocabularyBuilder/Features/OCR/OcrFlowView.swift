@@ -22,6 +22,10 @@ enum OcrStep: Int {
 struct OcrFlowView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var api: APIClient
+    @EnvironmentObject var library: LibraryStore
+    /// Fired once the flow has finished and the library is up to date.
+    /// The flow owns the write, so it also owns the read-back; this is
+    /// only a signal for the presenting screen.
     let onSaved: () -> Void
 
     @State private var step: OcrStep = .upload
@@ -40,6 +44,11 @@ struct OcrFlowView: View {
     @State private var enrichedFields: [String: EnrichedWord] = [:]
     @State private var isEnriching: Bool = false
     @State private var startedAt: Date = Date()
+    /// Set once the flow has written words to the server, so the
+    /// dismissal paths know a refresh is owed.
+    @State private var didSaveWords: Bool = false
+    /// Ensures `onSaved` fires exactly once, whichever exit is taken.
+    @State private var didNotifySaved: Bool = false
 
     var body: some View {
         NavigationView {
@@ -62,7 +71,14 @@ struct OcrFlowView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Cancel") { dismiss() }
+                    Button("Cancel") {
+                        // Cancel is a valid exit even after words have
+                        // been imported, so it must refresh too.
+                        Task {
+                            await finishAndNotify()
+                            dismiss()
+                        }
+                    }
                 }
             }
         }
@@ -75,6 +91,13 @@ struct OcrFlowView: View {
         .sheet(isPresented: $showLibrary) {
             ImagePicker(sourceType: .photoLibrary) { image in
                 applyImage(image)
+            }
+        }
+        .onDisappear {
+            // Safety net for the swipe-down dismissal, which bypasses
+            // both the Cancel button and the "Back to Home" button.
+            if didSaveWords && !didNotifySaved {
+                Task { await finishAndNotify() }
             }
         }
     }
@@ -288,13 +311,17 @@ struct OcrFlowView: View {
                 .foregroundStyle(Theme.primary)
             Text("Saved \(savedCount) word\(savedCount == 1 ? "" : "s")")
                 .font(.title2.bold())
-            Text("They are now in your Library.")
+            Text("They are in your Library now, under the OCR category.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 40)
             Spacer()
             Button {
-                onSaved()
-                dismiss()
+                Task {
+                    await finishAndNotify()
+                    dismiss()
+                }
             } label: {
                 Text("Back to Home").bold().frame(maxWidth: .infinity).padding(.vertical, 12)
             }
@@ -373,17 +400,46 @@ struct OcrFlowView: View {
         guard !toSave.isEmpty else { return }
         isWorking = true
         defer { isWorking = false }
-        do {
-            for write in toSave {
-                _ = try await api.createWord(write)
+        var saved = 0
+        var failures = 0
+        for write in toSave {
+            do {
+                // Insert into the local store as we go, so the word is
+                // visible in the Library immediately. Calling
+                // `api.createWord` directly would create the word on the
+                // server but leave the local list stale.
+                _ = try await library.createWord(api: api, write)
+                saved += 1
+            } catch let apiError as APIError {
+                failures += 1
+                error = apiError.errorDescription
+            } catch {
+                failures += 1
+                self.error = error.localizedDescription
             }
-            savedCount = toSave.count
-            step = .done
-        } catch let api as APIError {
-            error = api.errorDescription
-        } catch {
-            self.error = error.localizedDescription
         }
+        guard saved > 0 else { return }
+        didSaveWords = true
+        savedCount = saved
+        // Pull the authoritative list back so the server's ordering and
+        // any server-side field changes are reflected.
+        await library.reloadWords(api: api)
+        step = .done
+        if failures > 0 {
+            self.error = "\(failures) of \(toSave.count) word\(toSave.count == 1 ? "" : "s") could not be saved."
+        }
+    }
+
+    /// Refresh the library and notify the presenter, exactly once.
+    private func finishAndNotify() async {
+        // `saveSelected` already refreshed the store, so the list is
+        // current — refetching would download ~427 KB again.
+        if didSaveWords && !library.wordsAreFresh {
+            await library.reloadWords(api: api)
+        }
+        guard !didNotifySaved else { return }
+        didNotifySaved = true
+        onSaved()
     }
 }
 

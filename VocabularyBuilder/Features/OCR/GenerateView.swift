@@ -24,6 +24,11 @@ struct GenerateView: View {
 
     var body: some View {
         Form {
+            if let err = error {
+                Section {
+                    Text(err).font(.footnote).foregroundStyle(Theme.danger)
+                }
+            }
             Section("Prompt") {
                 TextField("Subject, e.g. \"Environmental vocabulary\"", text: $subject)
                     .textInputAutocapitalization(.words)
@@ -130,6 +135,8 @@ struct GenerateView: View {
         isSaving = true
         defer { isSaving = false }
         var imported = 0
+        var failures = 0
+        var lastFailure: String?
         for word in toSave {
             let write = VocabularyWrite(
                 word: word.word,
@@ -148,10 +155,19 @@ struct GenerateView: View {
             do {
                 _ = try await library.createWord(api: api, write)
                 imported += 1
+            } catch let apiError as APIError {
+                // Most often a duplicate. Keep going, but report it.
+                failures += 1
+                lastFailure = apiError.errorDescription
             } catch {
-                // Skip duplicates; keep going.
+                failures += 1
+                lastFailure = error.localizedDescription
             }
         }
         savedCount = imported
+        if failures > 0 {
+            error = "\(failures) of \(toSave.count) word\(toSave.count == 1 ? "" : "s") could not be saved."
+                + (lastFailure.map { " \($0)" } ?? "")
+        }
     }
 }
