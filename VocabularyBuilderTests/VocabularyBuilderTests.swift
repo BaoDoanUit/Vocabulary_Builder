@@ -106,6 +106,45 @@ final class VocabularyBuilderTests: XCTestCase {
         )
         // No progress record → not mastered.
         XCTAssertFalse(store.isMastered(v, strongThreshold: 3))
+        // No progress record → the badge says "New".
+        XCTAssertEqual(store.mastery(v, strongThreshold: 3), .new)
+    }
+
+    /// The mastery badge on the word detail screen. The levels must
+    /// agree with `isMastered`, and weakness must win over the
+    /// correct-answer count.
+    @MainActor
+    func testMasteryLevels() {
+        let store = LibraryStore()
+        let id = UUID()
+        let v = Vocabulary(
+            id: id, word: "test", definition: "d", translation: "t",
+            partOfSpeech: "noun", exampleSentence: "e", category: "c",
+            source: "manual", imageId: nil, audioId: nil,
+            difficultyLevel: nil, ipa: nil, aiFieldsJson: nil,
+            createdAt: Date(), updatedAt: Date()
+        )
+        func progress(correct: Int, isWeak: Bool) -> WordProgress {
+            WordProgress(
+                wordId: id, attempts: correct, correct: correct,
+                incorrect: 0, studyCount: 0, lastSeenAt: nil,
+                isWeak: isWeak, consecutiveCorrect: correct
+            )
+        }
+
+        // One correct answer is not enough to be "Known".
+        store.progress[id] = progress(correct: 1, isWeak: false)
+        XCTAssertEqual(store.mastery(v, strongThreshold: 3), .learning)
+
+        // Three correct answers reaches the threshold.
+        store.progress[id] = progress(correct: 3, isWeak: false)
+        XCTAssertEqual(store.mastery(v, strongThreshold: 3), .known)
+        XCTAssertTrue(store.isMastered(v, strongThreshold: 3))
+
+        // Weakness wins even when the count is high.
+        store.progress[id] = progress(correct: 3, isWeak: true)
+        XCTAssertEqual(store.mastery(v, strongThreshold: 3), .weak)
+        XCTAssertFalse(store.isMastered(v, strongThreshold: 3))
     }
 
     // MARK: - SessionStore

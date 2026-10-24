@@ -58,41 +58,39 @@ struct StudyView: View {
     }
 
     var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
-                filterBar
-                if let word = currentWord {
-                    card(for: word)
-                        .padding(.horizontal)
-                    Spacer()
-                    actionRow(for: word)
-                        .padding(.horizontal)
-                        .padding(.bottom, 16)
-                } else {
-                    emptyState
-                }
-            }
-            .background(Theme.pageBackground.ignoresSafeArea())
-            .navigationTitle("Study")
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        showFilterSheet = true
-                    } label: {
-                        Label(filter.label, systemImage: "line.3.horizontal.decrease.circle")
-                    }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        reshuffle()
-                    } label: {
-                        Image(systemName: "shuffle")
-                    }
-                    .accessibilityLabel("Shuffle deck")
-                }
+        // The navigation stack lives in `ContentView`, one per tab.
+        VStack(spacing: 0) {
+            filterBar
+            if let word = currentWord {
+                card(for: word)
+                    .padding(.horizontal)
+                Spacer()
+                actionRow(for: word)
+                    .padding(.horizontal)
+                    .padding(.bottom, 16)
+            } else {
+                emptyState
             }
         }
-        .navigationViewStyle(.stack)
+        .background(Theme.pageBackground.ignoresSafeArea())
+        .navigationTitle("Study")
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    showFilterSheet = true
+                } label: {
+                    Label(filter.label, systemImage: "line.3.horizontal.decrease.circle")
+                }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    reshuffle()
+                } label: {
+                    Image(systemName: "shuffle")
+                }
+                .accessibilityLabel("Shuffle deck")
+            }
+        }
         .onAppear {
             if deck.isEmpty { reshuffle() }
             // Pull in words imported since the last visit. Skipped when

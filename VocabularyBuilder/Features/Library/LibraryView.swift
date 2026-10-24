@@ -65,51 +65,49 @@ struct LibraryView: View {
     }
 
     var body: some View {
-        // The Library is the one tab that had no navigation container,
-        // so `NavigationLink` had nowhere to push: tapping a word did
-        // nothing, and the title / search field / toolbar never showed.
-        NavigationView {
-            VStack(spacing: 0) {
-                if let err = library.lastError {
-                    ErrorBanner(message: err.errorDescription ?? "Error") {
-                        Task { await library.reload(api: api) }
-                    }
-                    .padding(.horizontal)
-                    .padding(.top, 4)
+        // The navigation stack now lives in `ContentView`, one per tab.
+        // Declaring it here as well nested a second stack inside the
+        // tab's, which left the pushed word detail short of the full
+        // screen.
+        VStack(spacing: 0) {
+            if let err = library.lastError {
+                ErrorBanner(message: err.errorDescription ?? "Error") {
+                    Task { await library.reload(api: api) }
                 }
-                categoryStrip
-                wordList
+                .padding(.horizontal)
+                .padding(.top, 4)
             }
-            .background(Theme.pageBackground.ignoresSafeArea())
-            .navigationTitle(isEditing ? "\(selection.count) selected" : "Library")
-            .navigationBarTitleDisplayMode(.inline)
-            .searchable(text: $search, prompt: "Search word, definition, category")
-            .toolbar { toolbarContent }
-            .sheet(isPresented: $showCreate) {
-                NavigationView {
-                    WordEditorView(mode: .create)
-                }
-                .navigationViewStyle(.stack)
-            }
-            .refreshable {
-                await library.reload(api: api)
-            }
-            .task {
-                // The list is a snapshot unless it is refreshed when the tab
-                // is opened. Skip the fetch when the store was updated
-                // moments ago — `GET /api/words` is ~427 KB.
-                guard !library.wordsAreFresh else { return }
-                isLoadingList = true
-                defer { isLoadingList = false }
-                await library.reloadWords(api: api)
-            }
-            // A new search or filter always starts at the first page.
-            .onChange(of: search) { _ in page = 0 }
-            .onChange(of: categoryFilter) { _ in page = 0 }
-            // Keep the stored page in step with a list that shrank.
-            .onChange(of: filtered.count) { _ in page = currentPage }
+            categoryStrip
+            wordList
         }
-        .navigationViewStyle(.stack)
+        .background(Theme.pageBackground.ignoresSafeArea())
+        .navigationTitle(isEditing ? "\(selection.count) selected" : "Library")
+        .navigationBarTitleDisplayMode(.inline)
+        .searchable(text: $search, prompt: "Search word, definition, category")
+        .toolbar { toolbarContent }
+        .sheet(isPresented: $showCreate) {
+            NavigationView {
+                WordEditorView(mode: .create)
+            }
+            .navigationViewStyle(.stack)
+        }
+        .refreshable {
+            await library.reload(api: api)
+        }
+        .task {
+            // The list is a snapshot unless it is refreshed when the tab
+            // is opened. Skip the fetch when the store was updated
+            // moments ago — `GET /api/words` is ~427 KB.
+            guard !library.wordsAreFresh else { return }
+            isLoadingList = true
+            defer { isLoadingList = false }
+            await library.reloadWords(api: api)
+        }
+        // A new search or filter always starts at the first page.
+        .onChange(of: search) { _ in page = 0 }
+        .onChange(of: categoryFilter) { _ in page = 0 }
+        // Keep the stored page in step with a list that shrank.
+        .onChange(of: filtered.count) { _ in page = currentPage }
     }
 
     @ToolbarContentBuilder
@@ -264,7 +262,9 @@ struct LibraryView: View {
             }
         } else {
             NavigationLink {
-                WordDetailView(wordId: word.id)
+                // Pass the whole filtered list so the detail screen can
+                // page through it with prev/next.
+                WordDetailView(wordId: word.id, siblings: filtered)
             } label: {
                 rowContent(word)
             }

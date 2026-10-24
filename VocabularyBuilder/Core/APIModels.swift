@@ -371,3 +371,37 @@ extension Vocabulary {
 
     var hasImage: Bool { imageId?.isEmpty == false }
 }
+
+// MARK: - Mastery
+
+/// How well the user knows a word. Derived client-side from the
+/// progress record — the server stores the counters but never decides
+/// weakness. See API.md §16.
+enum WordMastery: String, CaseIterable {
+    /// Never studied or answered.
+    case new
+    /// Answered at least once, but not yet past `strongThreshold`.
+    case learning
+    /// Correct answers have reached `strongThreshold`.
+    case known
+    /// Last answer was wrong, so it needs another look.
+    case weak
+
+    var label: String {
+        switch self {
+        case .new: return "New"
+        case .learning: return "Learning"
+        case .known: return "Known"
+        case .weak: return "Weak"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .new: return "sparkles"
+        case .learning: return "arrow.triangle.2.circlepath"
+        case .known: return "checkmark.circle.fill"
+        case .weak: return "exclamationmark.triangle.fill"
+        }
+    }
+}

@@ -80,6 +80,15 @@ final class LibraryStore: ObservableObject {
         return p.correct >= strongThreshold && !p.isWeak
     }
 
+    /// The mastery level of a word, for the badge on the detail screen.
+    /// Mirrors the web app's `getMasteryLevel`. See API.md §16.
+    func mastery(_ word: Vocabulary, strongThreshold: Int = 3) -> WordMastery {
+        guard let p = progress[word.id] else { return .new }
+        if p.isWeak { return .weak }
+        if p.correct >= strongThreshold { return .known }
+        return .learning
+    }
+
     func collection(id: UUID) -> WordCollection? {
         collections.first { $0.id == id }
     }

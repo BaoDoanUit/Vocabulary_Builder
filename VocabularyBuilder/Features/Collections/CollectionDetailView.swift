@@ -30,7 +30,8 @@ struct CollectionDetailView: View {
                     Section {
                         ForEach(words) { word in
                             NavigationLink {
-                                WordDetailView(wordId: word.id)
+                                // Page through the words in this collection.
+                                WordDetailView(wordId: word.id, siblings: words)
                             } label: {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(word.word).font(.headline)

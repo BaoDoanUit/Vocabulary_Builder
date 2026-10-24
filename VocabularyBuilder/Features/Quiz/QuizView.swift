@@ -58,51 +58,49 @@ struct QuizView: View {
     }
 
     var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
-                if let err = error {
-                    ErrorBanner(message: err) {
-                        Task { await start() }
-                    }
-                    .padding(.horizontal)
-                    .padding(.top, 8)
+        // The navigation stack lives in `ContentView`, one per tab.
+        VStack(spacing: 0) {
+            if let err = error {
+                ErrorBanner(message: err) {
+                    Task { await start() }
                 }
-                if finished {
-                    scoreCard
-                } else if isLoading {
-                    // A plain inline loader. The old material card was
-                    // drawn over the quiz and read as a separate screen
-                    // sliding in, instead of a wait on this one.
-                    BookLoader(message: "Generating your quiz…")
-                } else if items.isEmpty {
-                    startView
-                } else if let item = currentItem {
-                    questionView(item)
-                }
+                .padding(.horizontal)
+                .padding(.top, 8)
             }
-            .background(Theme.pageBackground.ignoresSafeArea())
-            .navigationTitle("Quiz")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Menu {
-                        ForEach(QuizMode.allCases) { m in
-                            Button {
-                                mode = m
-                            } label: {
-                                if mode == m {
-                                    Label(m.rawValue, systemImage: "checkmark")
-                                } else {
-                                    Text(m.rawValue)
-                                }
+            if finished {
+                scoreCard
+            } else if isLoading {
+                // A plain inline loader. The old material card was
+                // drawn over the quiz and read as a separate screen
+                // sliding in, instead of a wait on this one.
+                BookLoader(message: "Generating your quiz…")
+            } else if items.isEmpty {
+                startView
+            } else if let item = currentItem {
+                questionView(item)
+            }
+        }
+        .background(Theme.pageBackground.ignoresSafeArea())
+        .navigationTitle("Quiz")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    ForEach(QuizMode.allCases) { m in
+                        Button {
+                            mode = m
+                        } label: {
+                            if mode == m {
+                                Label(m.rawValue, systemImage: "checkmark")
+                            } else {
+                                Text(m.rawValue)
                             }
                         }
-                    } label: {
-                        Label(mode.rawValue, systemImage: "slider.horizontal.3")
                     }
+                } label: {
+                    Label(mode.rawValue, systemImage: "slider.horizontal.3")
                 }
             }
         }
-        .navigationViewStyle(.stack)
         .task { await loadSettings() }
     }
 

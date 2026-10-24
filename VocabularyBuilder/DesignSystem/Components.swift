@@ -50,13 +50,109 @@ struct StatCircle: View {
 // MARK: - Card
 
 struct Card<Content: View>: View {
+    var padding: CGFloat = 16
     @ViewBuilder var content: () -> Content
 
     var body: some View {
         content()
-            .padding(16)
+            .padding(padding)
             .background(Theme.cardBackground)
             .clipShape(RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous))
+    }
+}
+
+// MARK: - Elevated card
+//
+// A card with a soft drop shadow. Used where a card needs to read as a
+// raised surface rather than a flat panel — the word detail hero, for
+// instance. The plain `Card` stays flat on purpose: a shadow on every
+// row makes a long list look busy.
+
+struct ElevatedCard<Content: View>: View {
+    var padding: CGFloat = 16
+    var cornerRadius: CGFloat = Theme.cardRadius
+    @ViewBuilder var content: () -> Content
+
+    var body: some View {
+        content()
+            .padding(padding)
+            .background(Theme.cardBackground)
+            .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+            .shadow(color: .black.opacity(0.07), radius: 12, x: 0, y: 4)
+    }
+}
+
+// MARK: - Section header
+
+/// A small uppercase heading that introduces a block of content.
+struct SectionHeader: View {
+    let title: String
+    var icon: String? = nil
+    var tint: Color = Theme.primary
+
+    var body: some View {
+        HStack(spacing: 6) {
+            if let icon {
+                Image(systemName: icon)
+                    .font(.caption2.weight(.bold))
+            }
+            Text(title.uppercased())
+                .font(.caption2.weight(.bold))
+                .tracking(0.8)
+        }
+        .foregroundStyle(tint)
+    }
+}
+
+// MARK: - Mastery badge
+
+/// Shows how well the user knows a word. See `LibraryStore.mastery`.
+struct MasteryBadge: View {
+    let mastery: WordMastery
+
+    private var tint: Color {
+        switch mastery {
+        case .new: return Theme.info
+        case .learning: return Theme.warning
+        case .known: return Theme.primary
+        case .weak: return Theme.danger
+        }
+    }
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: mastery.icon).font(.caption2.weight(.bold))
+            Text(mastery.label).font(.caption.weight(.semibold))
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(tint.opacity(0.14))
+        .foregroundStyle(tint)
+        .clipShape(Capsule())
+    }
+}
+
+// MARK: - Stat tile
+
+/// A labelled number, used in the progress row of the detail screen.
+struct StatTile: View {
+    let value: String
+    let label: String
+    var tint: Color = .primary
+
+    var body: some View {
+        VStack(spacing: 3) {
+            Text(value)
+                .font(.title3.bold())
+                .foregroundStyle(tint)
+                .monospacedDigit()
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+        }
+        .frame(maxWidth: .infinity)
     }
 }
 

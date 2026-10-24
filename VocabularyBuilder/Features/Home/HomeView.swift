@@ -59,61 +59,59 @@ struct HomeView: View {
     }
 
     var body: some View {
-        NavigationView {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
-                    if let err = library.lastError {
-                        ErrorBanner(message: err.errorDescription ?? "Error") {
-                            Task { await library.reload(api: api) }
-                        }
-                        .padding(.horizontal)
-                    }
-                    greeting
-                    stats
-                    uploadButton
-                    recent
-                }
-                .padding(.vertical, 16)
-            }
-            .background(Theme.pageBackground.ignoresSafeArea())
-            .navigationTitle("Home")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
+        // The navigation stack lives in `ContentView`, one per tab.
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                if let err = library.lastError {
+                    ErrorBanner(message: err.errorDescription ?? "Error") {
                         Task { await library.reload(api: api) }
-                    } label: {
-                        Image(systemName: "arrow.clockwise")
                     }
-                    .accessibilityLabel("Reload")
+                    .padding(.horizontal)
                 }
+                greeting
+                stats
+                uploadButton
+                recent
             }
-            .task {
-                await vm.loadSettings()
-                // Refresh on appear, but skip the ~427 KB fetch when the
-                // store was updated moments ago.
-                if library.words.isEmpty || !library.wordsAreFresh {
-                    await library.reloadWords(api: api)
+            .padding(.vertical, 16)
+        }
+        .background(Theme.pageBackground.ignoresSafeArea())
+        .navigationTitle("Home")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    Task { await library.reload(api: api) }
+                } label: {
+                    Image(systemName: "arrow.clockwise")
                 }
+                .accessibilityLabel("Reload")
             }
-            .refreshable {
-                await library.reload(api: api)
-                await vm.loadSettings()
+        }
+        .task {
+            await vm.loadSettings()
+            // Refresh on appear, but skip the ~427 KB fetch when the
+            // store was updated moments ago.
+            if library.words.isEmpty || !library.wordsAreFresh {
+                await library.reloadWords(api: api)
             }
-            .fullScreenCover(isPresented: $showOcr) {
-                OcrFlowView {
-                    // The OCR flow already refreshed the store, so the
-                    // list is current. Only refetch if the refresh was
-                    // skipped (e.g. the flow was dismissed without
-                    // importing anything).
-                    Task {
-                        if !library.wordsAreFresh {
-                            await library.reloadWords(api: api)
-                        }
+        }
+        .refreshable {
+            await library.reload(api: api)
+            await vm.loadSettings()
+        }
+        .fullScreenCover(isPresented: $showOcr) {
+            OcrFlowView {
+                // The OCR flow already refreshed the store, so the
+                // list is current. Only refetch if the refresh was
+                // skipped (e.g. the flow was dismissed without
+                // importing anything).
+                Task {
+                    if !library.wordsAreFresh {
+                        await library.reloadWords(api: api)
                     }
                 }
             }
         }
-        .navigationViewStyle(.stack)
     }
 
     // MARK: - Subviews
@@ -195,7 +193,9 @@ struct HomeView: View {
                 VStack(spacing: 8) {
                     ForEach(recent) { word in
                         NavigationLink {
-                            WordDetailView(wordId: word.id)
+                            // The recent words are their own list, so the
+                            // detail screen pages through those five.
+                            WordDetailView(wordId: word.id, siblings: recent)
                         } label: {
                             RecentWordRow(word: word, store: library)
                         }

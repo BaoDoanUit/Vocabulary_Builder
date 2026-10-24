@@ -19,8 +19,11 @@ and installed onto the device through SideStore's on-device signing.
   recent words.
 - **Library** — search, category filter, multi-select delete, swipe-delete,
   server-side sort order (`updatedAt ?? createdAt` desc, then alphabetical).
+  Paged 25 words at a time — the API returns the whole catalogue in one
+  response, so the paging is done on the device.
 - **Word detail** — full record, IPA, definition, translation, example,
-  progress, edit / delete.
+  progress, mastery badge, edit / delete. Pages through the list it was
+  opened from with the prev/next bar or a left/right swipe.
 - **Word editor** — create / edit, image attach (compressed to ≤ 1280 px /
   500 KB), per-field AI enrich via `POST /api/ai/enrich-word`.
 - **Collections** — list + detail, create, delete, member word lists.
@@ -82,6 +85,24 @@ VocabularyBuilderTests/      XCTest target (model decoders + store smoke tests)
 The previous local-first architecture (bundled `words.json`,
 `UserDefaults`-backed per-word status) has been removed entirely. The server
 is the source of truth.
+
+## Navigation structure
+
+**One `NavigationView` per tab, declared in `ContentView`.** The tab views
+themselves must not declare one.
+
+This matters for two reasons:
+
+- A `NavigationLink` needs a navigation stack *above* it. When the Library
+  tab had no stack of its own, tapping a word did nothing at all.
+- Nesting a `NavigationView` inside a pushed view nests two stacks. SwiftUI
+  renders the inner one as an inset card with a shadow, and the content stops
+  short of the full screen.
+
+A view pushed into a tab therefore shares that tab's stack and fills the
+screen. Modals (the OCR flow, the word editor, the study filter) still wrap
+themselves in a `NavigationView`, because they are presented outside the tab
+hierarchy.
 
 ## Build
 

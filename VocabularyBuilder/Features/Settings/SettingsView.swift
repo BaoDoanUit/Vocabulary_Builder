@@ -32,19 +32,17 @@ struct SettingsView: View {
     @State private var exportData: Data?
 
     var body: some View {
-        NavigationView {
-            Form {
-                accountSection
-                if settings != nil { studySection }
-                apiSection
-                storageSection
-                dangerSection
-                aboutSection
-            }
-            .navigationTitle("Settings")
-            .toolbar(content: toolbarContent)
+        // The navigation stack lives in `ContentView`, one per tab.
+        Form {
+            accountSection
+            if settings != nil { studySection }
+            apiSection
+            storageSection
+            dangerSection
+            aboutSection
         }
-        .navigationViewStyle(.stack)
+        .navigationTitle("Settings")
+        .toolbar(content: toolbarContent)
         .task { await reload() }
         .confirmationDialog(
             "Erase all data on the server?",
