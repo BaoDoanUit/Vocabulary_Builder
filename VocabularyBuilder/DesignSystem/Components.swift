@@ -181,18 +181,9 @@ struct CachedImage: View {
     }
 }
 
-// MARK: - Loading overlay
+// MARK: - Loading
 
-struct LoadingOverlay: View {
-    let message: String
-
-    var body: some View {
-        VStack(spacing: 12) {
-            ProgressView()
-            Text(message).font(.footnote).foregroundStyle(.secondary)
-        }
-        .padding(20)
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-    }
-}
+// The app-wide loading indicator lives in `LoaderView.swift`
+// (`BookLoader` / `InlineSpinner`). It replaced the old
+// `LoadingOverlay`, whose material card read as a second screen
+// sliding over the one you were already on.

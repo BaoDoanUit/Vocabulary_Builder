@@ -16,6 +16,13 @@ struct LibraryView: View {
     @State private var selection: Set<UUID> = []
     @State private var isEditing: Bool = false
     @State private var showCreate: Bool = false
+    @State private var page: Int = 0
+    @State private var isLoadingList: Bool = false
+
+    /// How many words one page holds. `GET /api/words` has no
+    /// pagination — it returns the whole catalogue in one ~427 KB
+    /// response (API.md §7) — so the list is paged on the device.
+    static let pageSize: Int = 25
 
     private var categories: [String] { library.categories }
 
@@ -30,39 +37,79 @@ struct LibraryView: View {
         }
     }
 
+    /// How many pages the current filter needs.
+    private var pageCount: Int {
+        max(1, Int(ceil(Double(filtered.count) / Double(Self.pageSize))))
+    }
+
+    /// The page actually rendered, clamped so a shrinking list — a
+    /// delete, a new filter — can never leave us on an empty page.
+    private var currentPage: Int {
+        min(max(page, 0), pageCount - 1)
+    }
+
+    /// The words on the current page.
+    private var pageWords: [Vocabulary] {
+        let start = currentPage * Self.pageSize
+        let end = min(start + Self.pageSize, filtered.count)
+        guard start < end else { return [] }
+        return Array(filtered[start..<end])
+    }
+
+    /// "26–50 of 137"
+    private var pageRange: String {
+        guard !filtered.isEmpty else { return "0 of 0" }
+        let start = currentPage * Self.pageSize + 1
+        let end = min(start + Self.pageSize - 1, filtered.count)
+        return "\(start)–\(end) of \(filtered.count)"
+    }
+
     var body: some View {
-        VStack(spacing: 0) {
-            if let err = library.lastError {
-                ErrorBanner(message: err.errorDescription ?? "Error") {
-                    Task { await library.reload(api: api) }
+        // The Library is the one tab that had no navigation container,
+        // so `NavigationLink` had nowhere to push: tapping a word did
+        // nothing, and the title / search field / toolbar never showed.
+        NavigationView {
+            VStack(spacing: 0) {
+                if let err = library.lastError {
+                    ErrorBanner(message: err.errorDescription ?? "Error") {
+                        Task { await library.reload(api: api) }
+                    }
+                    .padding(.horizontal)
+                    .padding(.top, 4)
                 }
-                .padding(.horizontal)
-                .padding(.top, 4)
+                categoryStrip
+                wordList
             }
-            categoryStrip
-            wordList
-        }
-        .background(Theme.pageBackground.ignoresSafeArea())
-        .navigationTitle(isEditing ? "\(selection.count) selected" : "Library")
-        .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $search, prompt: "Search word, definition, category")
-        .toolbar { toolbarContent }
-        .sheet(isPresented: $showCreate) {
-            NavigationView {
-                WordEditorView(mode: .create)
+            .background(Theme.pageBackground.ignoresSafeArea())
+            .navigationTitle(isEditing ? "\(selection.count) selected" : "Library")
+            .navigationBarTitleDisplayMode(.inline)
+            .searchable(text: $search, prompt: "Search word, definition, category")
+            .toolbar { toolbarContent }
+            .sheet(isPresented: $showCreate) {
+                NavigationView {
+                    WordEditorView(mode: .create)
+                }
+                .navigationViewStyle(.stack)
             }
-            .navigationViewStyle(.stack)
+            .refreshable {
+                await library.reload(api: api)
+            }
+            .task {
+                // The list is a snapshot unless it is refreshed when the tab
+                // is opened. Skip the fetch when the store was updated
+                // moments ago — `GET /api/words` is ~427 KB.
+                guard !library.wordsAreFresh else { return }
+                isLoadingList = true
+                defer { isLoadingList = false }
+                await library.reloadWords(api: api)
+            }
+            // A new search or filter always starts at the first page.
+            .onChange(of: search) { _ in page = 0 }
+            .onChange(of: categoryFilter) { _ in page = 0 }
+            // Keep the stored page in step with a list that shrank.
+            .onChange(of: filtered.count) { _ in page = currentPage }
         }
-        .refreshable {
-            await library.reload(api: api)
-        }
-        .task {
-            // The list is a snapshot unless it is refreshed when the tab
-            // is opened. Skip the fetch when the store was updated
-            // moments ago — `GET /api/words` is ~427 KB.
-            guard !library.wordsAreFresh else { return }
-            await library.reloadWords(api: api)
-        }
+        .navigationViewStyle(.stack)
     }
 
     @ToolbarContentBuilder
@@ -134,7 +181,11 @@ struct LibraryView: View {
 
     @ViewBuilder
     private var wordList: some View {
-        if filtered.isEmpty {
+        if isLoadingList && library.words.isEmpty {
+            // First load of the tab: show the branded loader instead of
+            // an empty list that fills in a moment later.
+            BookLoader(message: "Loading your words…")
+        } else if filtered.isEmpty {
             EmptyState(
                 icon: "tray",
                 title: library.words.isEmpty ? "No words yet" : "No matches",
@@ -144,12 +195,57 @@ struct LibraryView: View {
             )
         } else {
             List {
-                ForEach(filtered) { word in
+                ForEach(pageWords) { word in
                     row(for: word)
                 }
             }
             .listStyle(.plain)
+            // The page controls sit below the list rather than inside
+            // it, so they stay put while the words scroll.
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                if pageCount > 1 {
+                    paginationBar
+                }
+            }
         }
+    }
+
+    /// The page controls — "26–50 of 137 · Page 2 of 6".
+    private var paginationBar: some View {
+        HStack(spacing: 12) {
+            Button {
+                page = currentPage - 1
+            } label: {
+                Label("Prev", systemImage: "chevron.left")
+                    .labelStyle(.titleAndIcon)
+            }
+            .disabled(currentPage == 0)
+
+            Spacer(minLength: 0)
+
+            VStack(spacing: 2) {
+                Text(pageRange)
+                    .font(.caption.monospacedDigit())
+                Text("Page \(currentPage + 1) of \(pageCount)")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer(minLength: 0)
+
+            Button {
+                page = currentPage + 1
+            } label: {
+                Label("Next", systemImage: "chevron.right")
+                    .labelStyle(.titleAndIcon)
+            }
+            .disabled(currentPage + 1 >= pageCount)
+        }
+        .font(.footnote)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background(Theme.cardBackground)
+        .overlay(alignment: .top) { Divider() }
     }
 
     @ViewBuilder

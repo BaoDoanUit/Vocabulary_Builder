@@ -70,9 +70,10 @@ struct QuizView: View {
                 if finished {
                     scoreCard
                 } else if isLoading {
-                    Spacer()
-                    LoadingOverlay(message: "Generating quiz with \(model.isEmpty ? "the server" : model)…")
-                    Spacer()
+                    // A plain inline loader. The old material card was
+                    // drawn over the quiz and read as a separate screen
+                    // sliding in, instead of a wait on this one.
+                    BookLoader(message: "Generating your quiz…")
                 } else if items.isEmpty {
                     startView
                 } else if let item = currentItem {
