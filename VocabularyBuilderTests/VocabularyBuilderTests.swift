@@ -114,16 +114,12 @@ final class VocabularyBuilderTests: XCTestCase {
     /// agree with `isMastered`, and weakness must win over the
     /// correct-answer count.
     @MainActor
-    func testMasteryLevels() {
+    func testMasteryLevels() async {
         let store = LibraryStore()
+        let client = StubAPIClient()
         let id = UUID()
-        let v = Vocabulary(
-            id: id, word: "test", definition: "d", translation: "t",
-            partOfSpeech: "noun", exampleSentence: "e", category: "c",
-            source: "manual", imageId: nil, audioId: nil,
-            difficultyLevel: nil, ipa: nil, aiFieldsJson: nil,
-            createdAt: Date(), updatedAt: Date()
-        )
+        let word = StubAPIClient.sampleWord(id: id, word: "test")
+
         func progress(correct: Int, isWeak: Bool) -> WordProgress {
             WordProgress(
                 wordId: id, attempts: correct, correct: correct,
@@ -132,19 +128,30 @@ final class VocabularyBuilderTests: XCTestCase {
             )
         }
 
+        // No progress record → "New".
+        client.wordsResult = .success([word])
+        client.progressResult = .success([])
+        await store.reload(api: client)
+        XCTAssertEqual(store.mastery(word, strongThreshold: 3), .new)
+        XCTAssertFalse(store.isMastered(word, strongThreshold: 3))
+
         // One correct answer is not enough to be "Known".
-        store.progress[id] = progress(correct: 1, isWeak: false)
-        XCTAssertEqual(store.mastery(v, strongThreshold: 3), .learning)
+        client.progressResult = .success([progress(correct: 1, isWeak: false)])
+        await store.reload(api: client)
+        XCTAssertEqual(store.mastery(word, strongThreshold: 3), .learning)
+        XCTAssertFalse(store.isMastered(word, strongThreshold: 3))
 
         // Three correct answers reaches the threshold.
-        store.progress[id] = progress(correct: 3, isWeak: false)
-        XCTAssertEqual(store.mastery(v, strongThreshold: 3), .known)
-        XCTAssertTrue(store.isMastered(v, strongThreshold: 3))
+        client.progressResult = .success([progress(correct: 3, isWeak: false)])
+        await store.reload(api: client)
+        XCTAssertEqual(store.mastery(word, strongThreshold: 3), .known)
+        XCTAssertTrue(store.isMastered(word, strongThreshold: 3))
 
         // Weakness wins even when the count is high.
-        store.progress[id] = progress(correct: 3, isWeak: true)
-        XCTAssertEqual(store.mastery(v, strongThreshold: 3), .weak)
-        XCTAssertFalse(store.isMastered(v, strongThreshold: 3))
+        client.progressResult = .success([progress(correct: 3, isWeak: true)])
+        await store.reload(api: client)
+        XCTAssertEqual(store.mastery(word, strongThreshold: 3), .weak)
+        XCTAssertFalse(store.isMastered(word, strongThreshold: 3))
     }
 
     // MARK: - SessionStore
