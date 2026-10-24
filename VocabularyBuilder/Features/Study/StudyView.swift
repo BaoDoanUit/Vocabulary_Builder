@@ -104,8 +104,9 @@ struct StudyView: View {
         .onChange(of: filter) { _ in reshuffle() }
         .onChange(of: library.words) { _ in reshuffle() }
         .onDisappear { speech.stop() }
-        .sheet(isPresented: $showFilterSheet) {
+        .fullScreenCover(isPresented: $showFilterSheet) {
             filterSheet
+                .hideTabBar()
         }
     }
 
@@ -326,6 +327,7 @@ struct StudyView: View {
                     }
                 }
             }
+            .fullBleedForm()
             .navigationTitle("Study filter")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -333,6 +335,7 @@ struct StudyView: View {
                     Button("Done") { showFilterSheet = false }
                 }
             }
+            .hideTabBar()
         }
         .navigationViewStyle(.stack)
     }

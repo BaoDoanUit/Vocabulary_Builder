@@ -108,6 +108,10 @@ struct GenerateView: View {
                 }
             }
         }
+        // The default form style floats its sections in a rounded card
+        // on a grey background, which reads as a partial screen. The
+        // plain style lets the content run edge to edge.
+        .fullBleedForm()
         .navigationTitle("Generate")
         .navigationBarTitleDisplayMode(.inline)
     }

@@ -128,6 +128,7 @@ struct WordEditorView: View {
                 }
             }
         }
+        .fullBleedForm()
         .navigationTitle(isEdit ? "Edit word" : "New word")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -148,13 +149,14 @@ struct WordEditorView: View {
             }
         }
         .onAppear(perform: prefill)
-        .sheet(isPresented: $showPhotoPicker) {
+        .fullScreenCover(isPresented: $showPhotoPicker) {
             ImagePicker(sourceType: .photoLibrary) { image in
                 if let data = image.jpegData(compressionQuality: 0.9) {
                     imageData = data
                     imageMime = "image/jpeg"
                 }
             }
+            .ignoresSafeArea()
         }
     }
 

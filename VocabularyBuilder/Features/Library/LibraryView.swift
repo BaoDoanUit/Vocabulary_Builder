@@ -85,9 +85,13 @@ struct LibraryView: View {
         .navigationBarTitleDisplayMode(.inline)
         .searchable(text: $search, prompt: "Search word, definition, category")
         .toolbar { toolbarContent }
-        .sheet(isPresented: $showCreate) {
+        .fullScreenCover(isPresented: $showCreate) {
+            // The editor is a screen of its own. A `.sheet` would draw
+            // it as an inset card, and the `NavigationView` inside it
+            // would nest a second stack inside the sheet's card.
             NavigationView {
                 WordEditorView(mode: .create)
+                    .hideTabBar()
             }
             .navigationViewStyle(.stack)
         }

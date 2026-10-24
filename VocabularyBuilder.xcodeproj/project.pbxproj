@@ -27,6 +27,7 @@
 		1A0003000000000000000018 /* DesignSystem/Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0002000000000000000018 /* DesignSystem/Components.swift */; };
 		1A0003000000000000000029 /* DesignSystem/MultiLineTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0002000000000000000029 /* DesignSystem/MultiLineTextField.swift */; };
 		1A000300000000000000002E /* DesignSystem/LoaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000200000000000000002E /* DesignSystem/LoaderView.swift */; };
+		1A000300000000000000002F /* DesignSystem/Presentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000200000000000000002F /* DesignSystem/Presentation.swift */; };
 		1A0003000000000000000019 /* Stores/SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0002000000000000000019 /* Stores/SessionStore.swift */; };
 		1A000300000000000000001A /* Stores/LibraryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000200000000000000001A /* Stores/LibraryStore.swift */; };
 		1A000300000000000000001B /* Features/Auth/AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000200000000000000001B /* Features/Auth/AuthView.swift */; };
@@ -77,6 +78,7 @@
 		1A0002000000000000000018 /* DesignSystem/Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		1A0002000000000000000029 /* DesignSystem/MultiLineTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiLineTextField.swift; sourceTree = "<group>"; };
 		1A000200000000000000002E /* DesignSystem/LoaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoaderView.swift; sourceTree = "<group>"; };
+		1A000200000000000000002F /* DesignSystem/Presentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presentation.swift; sourceTree = "<group>"; };
 		1A0002000000000000000019 /* Stores/SessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStore.swift; sourceTree = "<group>"; };
 		1A000200000000000000001A /* Stores/LibraryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryStore.swift; sourceTree = "<group>"; };
 		1A000200000000000000001B /* Features/Auth/AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
@@ -170,6 +172,7 @@
 				1A0002000000000000000018 /* DesignSystem/Components.swift */,
 				1A0002000000000000000029 /* DesignSystem/MultiLineTextField.swift */,
 				1A000200000000000000002E /* DesignSystem/LoaderView.swift */,
+				1A000200000000000000002F /* DesignSystem/Presentation.swift */,
 			);
 			path = DesignSystem;
 			sourceTree = "<group>";
@@ -400,6 +403,7 @@
 				1A0003000000000000000018 /* DesignSystem/Components.swift in Sources */,
 				1A0003000000000000000029 /* DesignSystem/MultiLineTextField.swift in Sources */,
 				1A000300000000000000002E /* DesignSystem/LoaderView.swift in Sources */,
+				1A000300000000000000002F /* DesignSystem/Presentation.swift in Sources */,
 				1A0003000000000000000019 /* Stores/SessionStore.swift in Sources */,
 				1A000300000000000000001A /* Stores/LibraryStore.swift in Sources */,
 				1A000300000000000000001B /* Features/Auth/AuthView.swift in Sources */,

@@ -104,6 +104,27 @@ screen. Modals (the OCR flow, the word editor, the study filter) still wrap
 themselves in a `NavigationView`, because they are presented outside the tab
 hierarchy.
 
+## Full-screen screens
+
+Three things stop a screen from filling the device, and
+[`Presentation.swift`](VocabularyBuilder/DesignSystem/Presentation.swift)
+handles all of them:
+
+- **A `.sheet` is an inset card**, not edge to edge. Anything that is a
+  screen of its own — the OCR flow, the word editor, the study filter, the
+  camera — is presented with `.fullScreenCover` instead.
+- **A `NavigationView` inside a `.sheet`** nests a second navigation stack,
+  which SwiftUI draws as a card inside the sheet's card. A `NavigationView`
+  as the *root* of a `fullScreenCover` is fine — there is only one stack.
+- **A `fullScreenCover` presented from inside a tab leaves the tab bar
+  drawn across the bottom**, because the cover is presented by the tab's
+  hosting controller. `.hideTabBar()` fixes it: `.toolbar(.hidden, for:
+  .tabBar)` from iOS 16, and a UIKit fallback on iOS 15.
+
+The default `Form` style also floats its sections in a rounded card on a
+grey background. `.fullBleedForm()` switches to the plain list style so the
+content runs to the edges.
+
 ## Build
 
 Prerequisites (already installed on this Ubuntu box): Swift 6.3.3, xtool, the

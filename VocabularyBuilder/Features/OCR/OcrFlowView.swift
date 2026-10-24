@@ -52,7 +52,7 @@ struct OcrFlowView: View {
 
     var body: some View {
         NavigationView {
-            VStack {
+            VStack(spacing: 0) {
                 if let err = error {
                     ErrorBanner(message: err) { error = nil }
                         .padding(.horizontal)
@@ -66,6 +66,7 @@ struct OcrFlowView: View {
                 case .done:        doneStep
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Theme.pageBackground.ignoresSafeArea())
             .navigationTitle("Add from photo")
             .navigationBarTitleDisplayMode(.inline)
@@ -81,17 +82,24 @@ struct OcrFlowView: View {
                     }
                 }
             }
+            // The flow is a screen of its own: it is presented as a
+            // full-screen cover and hides the tab bar. A cover
+            // presented from inside a tab otherwise leaves the tab bar
+            // drawn across the bottom.
+            .hideTabBar()
         }
         .navigationViewStyle(.stack)
-        .sheet(isPresented: $showCamera) {
+        .fullScreenCover(isPresented: $showCamera) {
             ImagePicker(sourceType: .camera) { image in
                 applyImage(image)
             }
+            .ignoresSafeArea()
         }
-        .sheet(isPresented: $showLibrary) {
+        .fullScreenCover(isPresented: $showLibrary) {
             ImagePicker(sourceType: .photoLibrary) { image in
                 applyImage(image)
             }
+            .ignoresSafeArea()
         }
         .onDisappear {
             // Safety net for the swipe-down dismissal, which bypasses
@@ -159,9 +167,9 @@ struct OcrFlowView: View {
                     .frame(maxHeight: 200)
                     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             }
-            ProgressView()
-            Text("Reading the page…")
-                .font(.headline)
+            // The same branded loader the rest of the app uses, so a
+            // wait always looks the same.
+            BookLoader(message: "Reading the page…", showsSpinner: false, artworkSize: 120)
             if let extraction {
                 Text("OCR \(extraction.ocrDurationMs)ms · LLM \(extraction.llmDurationMs)ms")
                     .font(.caption).foregroundStyle(.secondary)
@@ -213,6 +221,9 @@ struct OcrFlowView: View {
                     }
                 }
                 .listStyle(.plain)
+                // The list is the main content of the step, so it takes
+                // all the space between the header and the buttons.
+                .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
             } else if let extraction, extraction.vocabulary.isEmpty {
                 EmptyState(
                     icon: "magnifyingglass",
@@ -252,7 +263,7 @@ struct OcrFlowView: View {
     private var editStep: some View {
         // Simple per-item editor. iOS-only nicety: pick an entry to enrich
         // with AI before saving.
-        VStack {
+        VStack(spacing: 0) {
             if let idx = editingIndex, let item = editedItem {
                 Form {
                     Section("Word") {
@@ -296,6 +307,9 @@ struct OcrFlowView: View {
                         .disabled(isEnriching)
                     }
                 }
+                // The default form style floats its sections in a
+                // rounded card, which leaves the screen looking inset.
+                .fullBleedForm()
                 .navigationTitle("Edit word")
             } else {
                 EmptyState(icon: "pencil", title: "No item selected", message: "Pick a word from the list to edit.")

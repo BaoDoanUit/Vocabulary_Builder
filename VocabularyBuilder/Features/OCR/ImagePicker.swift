@@ -23,6 +23,11 @@ struct ImagePicker: UIViewControllerRepresentable {
             : .photoLibrary
         picker.delegate = context.coordinator
         picker.allowsEditing = false
+        // The picker is presented inside a `.fullScreenCover`, but it
+        // sets its own presentation style, which would otherwise make
+        // it a partial-height card over the OCR flow. Forcing
+        // `.fullScreen` keeps the camera edge to edge.
+        picker.modalPresentationStyle = .fullScreen
         return picker
     }
 

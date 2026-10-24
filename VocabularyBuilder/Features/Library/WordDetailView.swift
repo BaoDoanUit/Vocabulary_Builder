@@ -114,10 +114,14 @@ struct WordDetailView: View {
                 pagingBar
             }
         }
-        .sheet(isPresented: $showEdit) {
+        .fullScreenCover(isPresented: $showEdit) {
+            // The editor is a screen of its own — a `.sheet` would
+            // draw it as an inset card with a second navigation stack
+            // nested inside.
             if let word {
                 NavigationView {
                     WordEditorView(mode: .edit(word))
+                        .hideTabBar()
                 }
                 .navigationViewStyle(.stack)
             }
